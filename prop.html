@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contribute Spark</title>
+</head>
+<body>
+  <h2 id="title">Loading build info...</h2>
+  <div id="instructions"></div>
+  <div id="link"></div>
+
+  <script>
+    async function loadBuild() {
+      // Read query params
+      const params = new URLSearchParams(window.location.search);
+      const propId = params.get("prop");
+      const targetType = params.get("type"); // optional
+
+      if (!propId) {
+        document.getElementById("title").textContent = "Missing property ID!";
+        document.getElementById("instructions").textContent =
+          "Use this format: ?prop=PROPERTY_ID&type=BUILD_TYPE (type is optional)";
+        return;
+      }
+
+      try {
+        // Fetch property data (replace with real endpoint if needed)
+        const response = await fetch(`https://api.upland.me/properties/${propId}`);
+        const data = await response.json();
+
+        // Filter builds in progress
+        let builds = (data.structures || []).filter(s => s.status === "in_progress");
+
+        // If type is given, filter further
+        if (targetType) {
+          builds = builds.filter(
+            s => s.type.toLowerCase() === targetType.toLowerCase()
+          );
+        }
+
+        if (builds.length > 0) {
+          document.getElementById("title").textContent =
+            targetType
+              ? `Active ${targetType} builds on this property:`
+              : `Active builds on this property:`;
+
+          const list = document.createElement("ul");
+
+          builds.forEach((b, i) => {
+            const item = document.createElement("li");
+            item.textContent = `${b.type} – Progress: ${b.progress || 0}%`;
+            list.appendChild(item);
+          });
+
+          document.getElementById("instructions").appendChild(list);
+
+          const link = document.createElement("a");
+          link.href = `https://play.upland.me/?prop_id=${propId}`;
+          link.textContent = "Open Property in Upland";
+          link.style.fontSize = "18px";
+          link.style.display = "inline-block";
+          link.style.marginTop = "10px";
+          document.getElementById("link").appendChild(link);
+
+        } else {
+          document.getElementById("title").textContent = "No active builds found!";
+          document.getElementById("instructions").textContent =
+            targetType
+              ? `Couldn’t find any "${targetType}" builds in progress.`
+              : `No builds currently in progress on this property.`;
+        }
+      } catch (e) {
+        document.getElementById("title").textContent = "Error loading property data.";
+        console.error(e);
+      }
+    }
+
+    loadBuild();
+  </script>
+</body>
+</html>
