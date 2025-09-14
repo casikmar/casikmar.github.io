@@ -40,7 +40,7 @@
       output.textContent = "❌ No property id provided. Use ?prop=YOUR_PROP_ID";
     } else {
       // UPXLand property details endpoint
-      const apiUrl = `https://api.upxland.me/properties/${propId}`;
+      const apiUrl = `https://upxland.me/properties/${propId}`;
 
       fetch(apiUrl)
         .then(res => {
@@ -78,3 +78,4 @@
   </script>
 </body>
 </html>
+
