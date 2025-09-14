@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Upland Property Builds</title>
+  <title>Upland Property Builds (via UPXLand)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,7 +28,6 @@
   <div id="output">Loading...</div>
 
   <script>
-    // Helper: read query param
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name);
     }
@@ -40,22 +39,20 @@
     if (!propId) {
       output.textContent = "❌ No property id provided. Use ?prop=YOUR_PROP_ID";
     } else {
-      const apiUrl = `https://api.upland.me/properties/${propId}`;
+      // UPXLand property details endpoint
+      const apiUrl = `https://api.upxland.me/properties/${propId}`;
 
       fetch(apiUrl)
         .then(res => {
           if (!res.ok) throw new Error("API request failed");
           return res.json();
         })
-        .then(data => {
-          const property = Array.isArray(data) ? data[0] : data;
+        .then(property => {
           let structures = property.structures || [];
 
           if (buildId) {
-            // Single build view
             structures = structures.filter(s => s.building_nft_id === buildId);
           } else {
-            // Default: only show builds in progress
             structures = structures.filter(s => s.construction_status === "processing");
           }
 
@@ -64,7 +61,6 @@
             return;
           }
 
-          // Render
           output.innerHTML = structures.map(s => `
             <div class="build-card">
               <b>Structure:</b> ${s.structure_name}<br>
@@ -76,7 +72,7 @@
         })
         .catch(err => {
           console.error(err);
-          output.textContent = "❌ Error loading property from Upland API.";
+          output.textContent = "❌ Error loading property from UPXLand API.";
         });
     }
   </script>
